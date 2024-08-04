@@ -1,10 +1,17 @@
+using Shared.Service;
 using Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddScoped<ExerciseService>();
+builder.Services.AddScoped<TrainingService>();
+
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+.AddInteractiveServerComponents();
+
+builder.Services.AddHttpClient("Api", client => client.BaseAddress = new Uri("https://localhost:7223"));
 
 var app = builder.Build();
 
