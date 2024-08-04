@@ -1,0 +1,191 @@
+﻿@page "/training"
+@using Domain.Entities
+@inject TrainingService trainingService
+@inject ExerciseService exerciseService
+
+<h3>TrainingPage</h3>
+
+<EditForm Model="Training" FormName="trainingform" OnSubmit="Create">
+    @if (exerciseDetail != null)
+    {
+        <div>
+            <div class="w-100" style="background-color: #001; height: 15%;"></div>
+            <div>
+                <h2>@exerciseDetail.Name</h2>
+                
+                <h3>Preparação</h3>
+                
+                <p>@exerciseDetail.Preparation</p>
+                
+                <h3>Execução</h3>
+                
+                <p>@exerciseDetail.Execution</p>
+                
+                <h3>Dicas</h3>
+                
+                <p>@exerciseDetail.Tips</p>
+            </div>
+        </div>
+        <button type="button" @onclick="ComeBackFromExerciseDetail">voltar</button>
+    }
+    else if (exerciseTrainingDetail == null)
+    {
+        <input type="hidden" @bind-value="Training.Id" />
+        <label>
+            Name:
+            <InputText @bind-Value="Training.Name" />
+        </label>
+        <div class="d-flex">
+            <div>
+                <div>Número de exercícios</div>
+                <div class="d-flex">
+                    <div>
+                        <button type="button" class="btn btn-sm" @onclick="MinusExercise">-</button>
+                    </div>
+                    <div>
+                        @Training.ExerciseTraining.Count
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm" @onclick="AddExercise">+</button>
+                    </div>
+                </div>
+            </div>
+
+            @foreach (var exerciseTraining in Training.ExerciseTraining)
+            {
+                int index = Training.ExerciseTraining.IndexOf(exerciseTraining);
+
+                <InputSelect @bind-Value="Training.ExerciseTraining[index].ExerciseId">
+                    @foreach (var exercise in Exercises)
+                    {
+                        <option checked="@(Training.ExerciseTraining[index].ExerciseId == exercise.Id)"
+                                value="@exercise.Id">
+                            @exercise.Name
+                        </option>
+                    }
+                </InputSelect>
+
+                @if (Training.ExerciseTraining[index].ExerciseId > 0)
+                {
+                    <button type="button" class="btn btn-sm" @onclick="() => GoToExerciseTrainingDetail(exerciseTraining)">...</button>
+                }
+            }
+        </div>
+        <button type="submit">Criar</button>
+    }
+    else
+    {
+        <div>
+            <div class="w-100" style="background-color: #001; height: 15%;"></div>
+            <div>
+                <h2>@exerciseTrainingDetail?.Exercise?.Name</h2>
+                <button type="button" class="btn btn-sm" @onclick="() => GoToExerciseDetail(exerciseTrainingDetail?.ExerciseId ?? 0)">Ver detalhe</button>
+            </div>
+        </div>
+        <div>
+            <div>Número de séries</div>
+            <div class="d-flex">
+                <div>
+                    <button type="button" class="btn btn-sm" @onclick="MinusSets">-</button>
+                </div>
+                <div>
+                    @exerciseTrainingDetail?.Sets.Count
+                </div>
+                <div>
+                    <button type="button" class="btn btn-sm" @onclick="AddSets">+</button>
+                </div>
+            </div>
+        </div>
+        <label>
+            Descanso entre séries:
+            <InputNumber @bind-Value="exerciseTrainingDetail.RestBetweenSets" />
+        </label>
+        @foreach (var iten in exerciseTrainingDetail.Sets)
+        {
+            int index = exerciseTrainingDetail.Sets.IndexOf(iten);
+
+            <div class="d-flex">
+                <span>@(index + 1)</span>
+                <div>
+                    <label>
+                        <InputNumber @bind-Value="exerciseTrainingDetail.Sets[index].Repetition" />
+                        reps
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <InputNumber @bind-Value="exerciseTrainingDetail.Sets[index].Weight" />
+                        Kg
+                    </label>
+                </div>
+            </div>
+
+        }
+        <button type="button" @onclick="ComeBackFromExerciseTrainingDetail">voltar</button>
+    }
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    public Training Training { get; set; } = new(0, string.Empty);
+
+    public List<Exercise> Exercises { get; set; } = [];
+    public List<Exercise> ExercisesForTheTraining { get; set; } = [];
+
+    public ExerciseTraining? exerciseTrainingDetail { get; set; }
+    public Exercise? exerciseDetail { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        Exercises = await exerciseService.GetAllAsync();
+    }
+
+    public async Task Create()
+    {
+        await trainingService.Create(Training);
+    }
+
+    public void AddExercise()
+    {
+        Training.ExerciseTraining.Add(new(0, 0, Training.Id));
+    }
+
+    public void MinusExercise()
+    {
+        int count = Training.ExerciseTraining.Count;
+        if (count > 0)
+            Training.ExerciseTraining.RemoveAt(count - 1);
+    }
+
+    public void AddSets()
+    {
+        exerciseTrainingDetail?.Sets.Add(new(0, exerciseTrainingDetail.Id));
+    }
+
+    public void MinusSets()
+    {
+        int count = exerciseTrainingDetail?.Sets.Count ?? 0;
+        if (count > 0)
+            exerciseTrainingDetail!.Sets.RemoveAt(count - 1);
+    }
+
+    public void ComeBackFromExerciseTrainingDetail()
+    {
+        exerciseTrainingDetail = null;
+    }
+
+    public void ComeBackFromExerciseDetail()
+    {
+        exerciseDetail = null;
+    }
+
+    public void GoToExerciseTrainingDetail(ExerciseTraining exerciseTraining)
+    {
+        exerciseTrainingDetail = exerciseTraining;
+    }
+
+    public void GoToExerciseDetail(int exerciseId)
+    {
+        exerciseDetail = Exercises.FirstOrDefault(x => x.Id == exerciseId);
+    }
+}

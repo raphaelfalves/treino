@@ -1,0 +1,42 @@
+﻿@page "/ExercisePage"
+
+@using Domain.Entities
+@inject ExerciseService apiService
+
+<h3>Exercise</h3>
+
+<EditForm Model="Exercise" FormName="ExerciseForm" OnSubmit="Create">
+    <input type="hidden" value="@Exercise!.Id" />
+    <label>
+        Name:
+        <InputText @bind-Value="Exercise.Name" />
+    </label>
+    <label>
+        Preparation:
+        <InputText @bind-Value="Exercise.Preparation" />
+    </label>
+    <label>
+        Execution:
+        <InputText @bind-Value="Exercise.Execution" />
+    </label>
+    <label>
+        Tips:
+        <InputText @bind-Value="Exercise.Tips" />
+    </label>
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    public Exercise? Exercise { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Exercise = new(0, string.Empty, string.Empty, string.Empty, string.Empty);
+    }
+
+    public async Task Create()
+    {
+        await apiService.Create(Exercise);
+    }
+}
