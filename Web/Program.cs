@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<ExerciseService>();
 builder.Services.AddScoped<TrainingService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ApiService>();
 
 builder.Services.AddRazorComponents()
 .AddInteractiveServerComponents();

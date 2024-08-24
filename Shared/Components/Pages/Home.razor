@@ -1,5 +1,431 @@
 ﻿@page "/"
+@inject UserService userService
 
-<h1>Hello, world!</h1>
+@if (step == -1)
+{
+    <p>Tela inicial</p>
+}
+else if (step == 0)
+{
+    <div class="container-fluid col-12 text-center">
+        <img alt="Logo" src="data:image/jpeg;base64,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" />
+        <p>Academia e Musculação</p>
+        <h1>BEM-VINDO AO GYM WP</h1>
+        <h2>A solução ideal para seus treinos</h2>
+    </div>
+    <div class="container-fluid ">
+        <button type="button" class="col-12" @onclick="NextStep">Começar</button>
+        <button type="button" class="col-12">Já tenho uma conta</button>
+    </div>
+}
+else if (step == 1)
+{
+    <div class="h-100 d-flex flex-column">
+        <div class="m-auto px-4">
+            <h2>Vamos começar</h2>
+            <p>
+                Primeiro, precisamos saber algumas informações sobre você.
+                Essas informações serão utilizadas para criar uma experiência
+                personalizada para seu objetivo.
+            </p>
+        </div>
+        <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+    </div>
 
-Welcome to your new app.
+}
+else if (step == 2)
+{
+    <div class="d-flex justify-content-around mt-3">
+        <div style="position: absolute; left: 30px;">
+            <i class="bi bi-arrow-left"></i>
+        </div>
+        <div>Meu Perfil</div>
+    </div>
+    <EditForm FormName="UserForm" Model="user" OnSubmit="SaveUser">
+        <label>
+            Sexo:
+            <InputSelect @bind-Value="user.Sex">
+                <option value="@SexEnum.Male">Masculino</option>
+                <option value="@SexEnum.Female">Feminino</option>
+                <option value="@SexEnum.Unsaid">Prefiro não dizer</option>
+            </InputSelect>
+        </label>
+        <label>
+            Data de nascimento
+            <InputDate @bind-Value="user.BirthDate" />
+        </label>
+        <label>
+            Peso
+            <InputNumber @bind-Value="user.Weight" />
+        </label>
+        <label>
+            Qual a sua meta de peso?
+            <InputNumber @bind-Value="user.TargetWeight" />
+        </label>
+        <button class="m-auto px-4" type="submit">Continuar</button>
+    </EditForm>
+}
+@* else if (step == 3)
+{
+    <div>
+        <img alt="imagem do app" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSaw0XZPbwKrYUJLKfIWm9_Nr_lz89h_C6cUQ&s" />
+        <h2>Treino Personalizado para você</h2>
+        <p>
+            A partir dos seus objetivos e necessidades,
+            vamos personalizar um programa de treino para você!
+        </p>
+        <p>
+            Você poderá editá-lo ou criar seus próprios treinos.
+        </p>
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+}
+else if (step == 4)
+{
+    <div>
+        <p>
+            Qual é o seu objetivo?
+        </p>
+        <div>
+            <b>Hipertrofia</b>
+            <p>
+                Ganhar massa muscular e músculos volumosos
+
+            </p>
+        </div>
+        <div>
+            <b>Definição de massa muscular</b><p>
+                Músculos mais fortes, rígidos e aparentes
+
+            </p>
+        </div>
+        <div>
+            <b>Emagrecer</b>
+            <p>
+                Perder gordura corporal
+
+            </p>
+        </div>
+
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+}
+else if (step == 5)
+{
+    <div>
+        <p>
+            Qual é o seu objetivo?
+        </p>
+        <div>
+            <b>Balanceado</b>
+            <p>
+                Recomendado
+            </p>
+        </div>
+        <div>
+            <b>Peito</b>
+        </div>
+        <div>
+            <b>Costas</b>
+        </div>
+        <div>
+            <b>Braços</b>
+        </div>
+        <div>
+            <b>Pernas</b>
+        </div>
+        <div>
+            <b>Abdomên</b>
+        </div>
+        <div>
+            <b>Glúteos</b>
+        </div>
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+}
+else if (step == 6)
+{
+    <div>
+        <p>
+            Qual sua experiência praticando musculação?
+        </p>
+        <div>
+            <b>Iniciante </b>
+            <p>
+                Começando a prática ou menos de 6 meses de experiência
+            </p>
+        </div>
+        <div>
+            <b>Intermediário </b><p>
+                Pratica musculação há mais de 6 meses e menos de 2 anos
+            </p>
+        </div>
+        <div>
+            <b>Avançado </b>
+            <p>
+                Pratica musculação há mais de 2 anos de forma consistente
+            </p>
+        </div>
+
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+}
+else if (step == 7)
+{
+    <div>
+        <p>
+            Onde você costuma treinar?
+        </p>
+        <div>
+            <b>Academia básica</b>
+            <p>
+                Academia equipada com equipamentos de musculação simples, como barras e halteres
+            </p>
+        </div>
+        <div>
+            <b>Academia avançada</b><p>
+                Academia completa, equipada com todos os equipamentos necessários
+            </p>
+        </div>
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+} *@
+else if (step == 3)
+{
+    <div>
+        <b>
+            Em que dias da semana deseja treinar?
+        </b>
+        <p>
+            Escolha de 2 a 6 dias na semana
+        </p>
+        <div>
+            <b>Segunda-feira</b>
+        </div>
+        <div>
+            <b>Terça-feira</b>
+        </div>
+        <div>
+            <b>Quarta-feira</b>
+        </div>
+        <div>
+            <b>Quinta-feira</b>
+        </div>
+        <div>
+            <b>Sexta-feira</b>
+        </div>
+        <div>
+            <b>Sábado</b>
+        </div>
+        <div>
+            <b>Domingo</b>
+        </div>
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+}
+else if (step == 4)
+{
+    <div>
+        <b>
+            Em quais horários você treina?
+        </b>
+        <div>
+            <label>
+                Horários diferentes em cada dia
+                <InputCheckbox @bind-Value="user.DifferentHours" />
+            </label>
+        </div>
+        @if (user.DifferentHours == false)
+        {
+            <label>
+                Todos os dias
+                <InputText @bind-Value="user.AllDaysHour" />
+            </label>
+        }
+        else
+        {
+            <div>
+                <label>
+                    <b>Segunda-feira</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <b>Terça-feira</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <b>Quarta-feira</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <b>Quinta-feira</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <b>Sexta-feira</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <b>Sábado</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    <b>Domingo</b>
+                    <InputText @bind-Value="user.AllDaysHour" />
+                </label>
+            </div>
+
+        }
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+}
+@* else if (step == 10)
+{
+    <div>
+        <p>
+            O Gym WP te ajuda a não perder nenhum treino e te manter motivado. Basta escolher os horários e te avisamos!
+        </p>
+        <div>
+            <label>
+                Ativar notificações
+                <InputCheckbox @bind-Value="user.DifferentHours" />
+            </label>
+            <p>
+                Selecione a frequência das notificações
+            </p>
+        </div>
+        <div>
+            <b>Leve</b>
+            <p>
+                Notificações apenas para lembrar a hora do treino.
+            </p>
+        </div>
+        <div>
+            <b>Moderada</b>
+            <p>
+                Notificações durante os dias de treino com dicas ou frases motivacionais
+            </p>
+        </div>
+        <div>
+            <b>Intensa</b>
+            <p>
+                Notificações todos os dias com dicas e frases motivacionais.
+            </p>
+        </div>
+    </div>
+    <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+} 
+else if (step == 11)
+{
+    <div class="h-100 d-flex flex-column">
+        <div class="m-auto px-4">
+            <h2>Criando Treino Personalizado</h2>
+            <p>Calculando objetivos de treino</p>
+            <p>Criando catálogo de exercícios personalizados</p>
+            <p>Preparando Programas de Treino</p>
+            <p>Finalizando personalização</p>
+        </div>
+        <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+    </div>
+
+}
+else if (step == 12)
+{
+    <div class="h-100 d-flex flex-column">
+        <div class="m-auto px-4">
+            <p>Treino Personalizado</p>
+            <p>Tonificar - Balanceado</p>
+            <p>
+                Agora você tem um Treino Personalizado criado especialmente para você.
+                Cada fase foi elaborada para obter o máximo de resultados em um curto período de tempo.
+                Siga os treinos programados e tonifique seus músculos de forma consistente e definitiva.
+                Fase 1: Resistência 4 semanas Fase 2: Força 4 semanas Fase 3: Hipertrofia 4 semanas
+            </p>
+        </div>
+        <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar</button>
+    </div>
+
+}*@
+else if (step == 5)
+{
+    <div class="h-100 d-flex flex-column">
+        <div class="m-auto px-4">
+            <p>Registre-se para salvar sua evolução. </p>
+@*             <p>Entre com sua conta </p>
+            <p>Continuar com Google</p>
+            <p>Continuar com Facebook </p> *@
+        <button class="m-auto px-4" type="button" @onclick="NextStep">Continuar com o E-mail</button>
+@*             <p>ou </p>
+            <p>Continuar sem conta </p> *@
+            <p>Ao continuar você concorda com nossos Termos de Uso e Políticas de Privacidade.</p>
+        </div>
+    </div>
+
+}
+else if (step == 6)
+{
+    <EditForm FormName="RegisterForm" Model="register" OnValidSubmit="Register">
+        <div class="form-floating mb-3">
+            <label>
+                Email:
+                <InputText @bind-Value="register.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="E-mail" />
+            </label>
+            <ValidationMessage For="() => register.Email" />
+        </div>        
+        <div class="form-floating mb-3">
+            <label>
+                <InputText @bind-Value="register.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Senha" />
+            </label>
+            <ValidationMessage For="() => register.Password" />
+        </div>
+        <button class="m-auto px-4" type="submit">Continuar</button>
+    </EditForm>
+
+
+}
+
+@code {
+    [SupplyParameterFromForm]
+    User user { get; set; } = new();
+    UserCreateRequest register = new(string.Empty, string.Empty);
+
+    int step = 0;
+
+    async Task SaveUser()
+    {
+        step = 3;
+    }   
+
+    async Task Register()
+    {
+        await userService.Create(user);
+        step = -1;
+    }    
+
+    void finish()
+    {
+        step = -1;
+    }
+
+    void NextStep()
+    {
+        step++;
+    }
+
+    void PreviusStep()
+    {
+        step--;
+    }
+}
